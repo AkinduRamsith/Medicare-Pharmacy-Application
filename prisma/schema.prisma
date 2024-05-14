@@ -1,8 +1,62 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model user_type {
+    id        Int      @id @default(autoincrement())
+    name      String?
+    is_active Boolean? @default(true)
+    user      user[]
+}
+
+model user {
+    id           Int        @id @default(autoincrement())
+    email        String?    @unique
+    password     String?
+    is_active    Boolean?   @default(true)
+    created_at   DateTime   @default(now())
+    updated_at   DateTime   @updatedAt
+    user_type    user_type? @relation(fields: [user_type_id], references: [id])
+    user_type_id Int?
+    customer     customer[]
+    admin        admin[]
+}
+
+model customer {
+    id             Int      @id @default(autoincrement())
+    first_name     String?
+    last_name      String?
+    mobile_number  String?
+    street_address String?
+    city           String?
+    nic            String?
+    gender         String?
+    user           user?    @relation(fields: [user_id], references: [id])
+    user_id        Int?
+    image          String?
+    is_active      Boolean? @default(true)
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
+}
+
+model admin {
+    id             Int      @id @default(autoincrement())
+    first_name     String?
+    last_name      String?
+    mobile_number  String?
+    street_address String?
+    city           String?
+    nic            String?
+    gender         String?
+    user           user?    @relation(fields: [user_id], references: [id])
+    user_id        Int?
+    image          String?
+    is_active      Boolean? @default(true)
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
 }

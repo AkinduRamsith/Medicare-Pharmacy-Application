@@ -5,7 +5,10 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const expressWinstom = require('express-winston');
 const logger = require('./src/Logger/logger');
+const verifyToken = require('./src/middleware/verifyToken');
 
+const adminRoutes = require('./src/routes/adminRoutes');
+const userRoutes = require('./src/routes/userRoutes')
 
 const app = express();
 
@@ -21,6 +24,10 @@ app.use(expressWinstom.logger({
 }))
 
 app.use(morgan('dev'));
+app.use("/api/admin",verifyToken,adminRoutes);
+app.use("/api/user",userRoutes);
+
+app.get("/", (req, res) => { res.send("Hello, world!") });
 
 app.listen(port, () => {
     console.log(`Node.js on port ${port}!`)
