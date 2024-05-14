@@ -17,13 +17,13 @@ const maxAge = 2 * 24 * 60 * 60;
 const refreshTokenAge = 3 * 24 * 60 * 60;
 
 const createToken = (id, email) => {
-    return jwt.sign({ id, email }, "e-tutor secret", {
+    return jwt.sign({ id, email }, "pharmacy", {
         expiresIn: maxAge,
     });
 };
 
 const refreshToken = (id) => {
-    return jwt.sign({ id }, "e-tutor refresh secret", {
+    return jwt.sign({ id }, "pharmacy refresh secret", {
         expiresIn: refreshTokenAge,
     });
 };

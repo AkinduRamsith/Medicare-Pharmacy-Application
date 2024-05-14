@@ -5,7 +5,7 @@ const path = require('path');
 const responseMessages = require('../util/responseMessages')
 const verifyToken = require('../middleware/verifyToken')
 
-const storage = multer.diskStorage({
+const adminStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, `${process.env.ADMIN_IMAGES}`);
     },
@@ -14,14 +14,34 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage }).array('file');
+const categoryImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, `${process.env.CATEGORY_IMAGES}`);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname);
+    }
+});
+
+const productImageStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, `${process.env.PRODUCT_IMAGES}`);
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname);
+    }
+});
+
+const adminImageUpload = multer({ storage: adminStorage }).array('file');
+const categoryImageUpload = multer({ storage: categoryImageStorage }).array('file');
+const productImageUpload = multer({ storage: productImageStorage }).array('file');
 
 const adminRoutes = Router();
 
 adminRoutes.post('/add-new-user-type', adminController.addNewUserType)
 
 adminRoutes.post('/save-admin-image', (req, res, next) => {
-    upload(req, res, function (err) {
+    adminImageUpload(req, res, function (err) {
         if (err) {
             return res.status(200).json({ message: responseMessages.ErrorUploadFiles, error: err.message,responseCode:1001,  });
         }
@@ -29,5 +49,26 @@ adminRoutes.post('/save-admin-image', (req, res, next) => {
     });
 }, adminController.fileUpload);
 
+adminRoutes.post('/save-category-image', (req, res, next) => {
+    categoryImageUpload(req, res, function (err) {
+        if (err) {
+            return res.status(200).json({ message: responseMessages.ErrorUploadFiles, error: err.message,responseCode:1001,  });
+        }
+        next();
+    });
+}, adminController.fileUpload);
+
+adminRoutes.post('/save-product-image', (req, res, next) => {
+    productImageUpload(req, res, function (err) {
+        if (err) {
+            return res.status(200).json({ message: responseMessages.ErrorUploadFiles, error: err.message,responseCode:1001,  });
+        }
+        next();
+    });
+}, adminController.fileUpload);
+
+
+adminRoutes.post('/add-new-product',adminController.addNewProduct)
+adminRoutes.post('/add-new-category',adminController.addCategory)
 
 module.exports = adminRoutes; 

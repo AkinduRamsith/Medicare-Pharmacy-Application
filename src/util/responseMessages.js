@@ -44,11 +44,13 @@ const responseMessages = {
     userTypeExists: "User Type Already Exists",
     userTypeAdded: "User Type Added Successfully",
     userTypeNotFound: "User Type Not Found",
-    userGroupExists: "User Group Already Exists",
-    userGroupAdded: "User Group Added Successfully",
     userDetailsRetrievedSuccessfully: "User Details Retrieved Successfully",
     fileTypeNotFound: "File Type Not Found",
-    privilegeExists: "Privilege already exists"
+    privilegeExists: "Privilege already exists",
+    productAdded:"Product Added Successfully",
+    productUpdated:"Current Product Updated",
+    categoryExists:"Category already exists",
+    customerNotExist:"Customer not found",
 
 };
 
