@@ -122,7 +122,7 @@ const addNewProduct = async (req, res) => {
         });
     }
 
-    const { productName, categoryId, file, quantity, price, description, brand } = req.body;
+    const { productName, categoryId, file, quantity, price, description, brand ,rating} = req.body;
 
     try {
         const existingProduct = await prisma.product.findFirst({
@@ -145,7 +145,8 @@ const addNewProduct = async (req, res) => {
                 data: {
                     image: file,
                     stock: existingProduct.stock + quantity,
-                    description: description
+                    description: description,
+                    rating:rating
                 }
             })
         } else {
@@ -162,7 +163,7 @@ const addNewProduct = async (req, res) => {
                     stock: quantity,
                     price: price,
                     description: description,
-
+                    rating:rating
                 }
 
             })
@@ -213,15 +214,15 @@ const addCategory = async (req, res) => {
         });
     }
 
-    const { category,file } = req.body;
-    try{
+    const { category, file } = req.body;
+    try {
         const existingCategory = await prisma.category.findFirst({
-            where:{
-                category_name:category
+            where: {
+                category_name: category
             }
         });
 
-        if(existingCategory){
+        if (existingCategory) {
             return handleError({
                 res: res,
                 status: 200,
@@ -232,9 +233,9 @@ const addCategory = async (req, res) => {
         }
 
         const newCategory = await prisma.category.create({
-            data:{
-                category_name:category,
-                image:file,
+            data: {
+                category_name: category,
+                image: file,
 
             }
         })
@@ -249,7 +250,7 @@ const addCategory = async (req, res) => {
             responseCode: 1000
         })
 
-    }catch(error){
+    } catch (error) {
         return handleError({
             res: res,
             status: 200,

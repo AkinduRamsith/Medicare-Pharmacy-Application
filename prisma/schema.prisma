@@ -28,7 +28,7 @@ model user {
 }
 
 model customer {
-    id             Int       @id @default(autoincrement())
+    id             Int      @id @default(autoincrement())
     first_name     String?
     last_name      String?
     mobile_number  String?
@@ -36,15 +36,16 @@ model customer {
     city           String?
     nic            String?
     gender         String?
-    user           user?     @relation(fields: [user_id], references: [id])
+    user           user?    @relation(fields: [user_id], references: [id])
     user_id        Int?
     image          String?
-    is_active      Boolean?  @default(true)
-    created_at     DateTime  @default(now())
-    updated_at     DateTime  @updatedAt
+    is_active      Boolean? @default(true)
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
     order          order[]
-    payment        payment[]
-    cart           cart[]
+
+    cart         cart[]
+    prescription prescription[]
 }
 
 model admin {
@@ -89,6 +90,8 @@ model product {
     cart          cart[]
     is_active     Boolean?        @default(true)
     brand         String?
+    rating        Float?
+    sold          Int?            @default(0)
 }
 
 model order {
@@ -96,10 +99,15 @@ model order {
     created_at    DateTime        @default(now())
     updated_at    DateTime        @updatedAt
     amount        Decimal?
-    is_active     Boolean?        @default(false)
+    is_active     Boolean?        @default(true)
     order_details order_details[]
     customer      customer?       @relation(fields: [customer_id], references: [id])
     customer_id   Int?
+    tax           Decimal?
+    payment       payment?        @relation(fields: [payment_id], references: [id])
+    payment_id    Int?
+    order_status  String?
+    date_receive  DateTime?
 }
 
 model order_details {
@@ -108,24 +116,25 @@ model order_details {
     product_id Int?
     order      order?   @relation(fields: [order_id], references: [id])
     order_id   Int?
-    is_active  Boolean? @default(false)
+    is_active  Boolean? @default(true)
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
     quantity   Int?
     price      Decimal?
+    tax        Decimal?
 }
 
 model payment {
-    id             Int       @id @default(autoincrement())
-    created_at     DateTime  @default(now())
-    updated_at     DateTime  @updatedAt
-    is_active      Boolean?  @default(true)
-    customer       customer? @relation(fields: [customer_id], references: [id])
-    customer_id    Int?
+    id             Int      @id @default(autoincrement())
+    created_at     DateTime @default(now())
+    updated_at     DateTime @updatedAt
+    is_active      Boolean? @default(true)
     payment_method String?
     amount         Decimal?
     data           String?
     action         String?
+    order          order[]
+    status         String?
 }
 
 model cart {
@@ -138,4 +147,22 @@ model cart {
     product     product?  @relation(fields: [product_id], references: [id])
     product_id  Int?
     quantity    Int?
+}
+
+model prescription {
+    id                Int       @id @default(autoincrement())
+    created_at        DateTime  @default(now())
+    updated_at        DateTime  @updatedAt
+    is_active         Boolean?  @default(true)
+    customer          customer? @relation(fields: [customer_id], references: [id])
+    customer_id       Int?
+    frequency         String?
+    fulfilment        String?
+    substitutes       String?
+    prescription_item String?   @db.VarChar(1000)
+    image             String?
+    payment_method    String?
+    refund            String?
+    shipping_address  String?
+    status            String?
 }

@@ -47,11 +47,18 @@ const responseMessages = {
     userDetailsRetrievedSuccessfully: "User Details Retrieved Successfully",
     fileTypeNotFound: "File Type Not Found",
     privilegeExists: "Privilege already exists",
-    productAdded:"Product Added Successfully",
-    productUpdated:"Current Product Updated",
-    categoryExists:"Category already exists",
-    customerNotExist:"Customer not found",
-
+    productAdded: "Product Added Successfully",
+    productUpdated: "Current Product Updated",
+    categoryExists: "Category already exists",
+    customerNotExist: "Customer not found",
+    productNotExist: "Product Not Exists",
+    cartAdded: "Item added To Cart Successfully",
+    cartNotExist: "Cart Item Not Found",
+    cartUpdated: "Your Cart was updated",
+    orderNotExist:"Order Not Exists",
+    paymentDone:"Payment Done",
+    customerUpdated:"Customer Updated",
+    prescriptionFetched:"Prescription Fetched",
 };
 
 module.exports = responseMessages;
