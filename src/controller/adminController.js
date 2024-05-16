@@ -15,7 +15,7 @@ const nodemailer = require("nodemailer");
 const prisma = new PrismaClient();
 
 const { root, createToken, refreshToken, sendEmail } = require('../../const');
-const { profile } = require('console');
+
 const rootDir = `${root}/${process.env.ADMIN_IMAGES}`
 
 const fileUpload = async (req, res) => {
@@ -428,10 +428,299 @@ const getDetailsToAdminDashboard = async (req, res) => {
 }
 
 
+const getALLOrders = async (req, res) => {
+    try {
+        const allOrders = await prisma.order.findMany({
+            where: {
+                is_active: true
+            },
+            select: {
+                id: true,
+                customer: {
+                    select: {
+                        id: true,
+                        first_name: true,
+                        last_name: true,
+                        mobile_number: true,
+                        street_address: true,
+                        city: true,
+                        gender: true,
+                        nic: true,
+                        image: true,
+                        user: {
+                            select: {
+                                email: true
+                            }
+                        }
+                    }
+                },
+                order_status: true,
+
+
+            }
+        })
+
+        handleResponse({
+            res: res,
+            status: 200,
+            message: responseMessages.allOrders,
+            data: {
+                allOrders: allOrders,
+            },
+            responseCode: 1000
+        })
+
+    } catch (error) {
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.serverError,
+            error: error.stack,
+            responseCode: 1001
+        })
+    }
+}
+
+
+const changeOrderStatus = async (req, res) => {
+    const orderId = parseInt(req.params.orderId);
+    const orderStatus = req.body.orderStatus;
+    try {
+        const existingOrder = await prisma.order.findFirst({
+            where: {
+                id: orderId,
+                is_active: true
+            }
+        });
+
+        if (!existingOrder) {
+            return handleError({
+                res: res,
+                status: 200,
+                message: responseMessages.orderNotExist,
+                error: null,
+                responseCode: 1001
+            })
+        }
+
+        const updateOrder = await prisma.order.update({
+            where: {
+                id: orderId
+            },
+            data: {
+                order_status: orderStatus
+            }
+        });
+
+        handleResponse({
+            res: res,
+            status: 200,
+            message: responseMessages.orderUpdated,
+            data: {
+                updateOrder: updateOrder
+            },
+            responseCode: 1000
+        })
+
+    } catch (error) {
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.serverError,
+            error: error.stack,
+            responseCode: 1001
+        })
+    }
+
+}
+
+
+const getAllCustomers = async (req, res) => {
+    try {
+        const allCustomers = await prisma.customer.findMany({
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                mobile_number: true,
+                street_address: true,
+                city: true,
+                gender: true,
+                nic: true,
+                image: true,
+                user: {
+                    select: {
+                        email: true
+                    }
+                }
+            }
+        });
+
+        handleResponse({
+            res: res,
+            status: 200,
+            message: responseMessages.allCustomers,
+            data: {
+                allCustomers: allCustomers,
+            },
+            responseCode: 1000
+        })
+
+    } catch (error) {
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.serverError,
+            error: error.stack,
+            responseCode: 1001
+        })
+    }
+}
+
+const updateAdmin = async (req, res) => {
+    if (Object.keys(req.body).length === 0) {
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.noContent,
+            error: null,
+            responseCode: 1001
+        });
+    }
+    const adminId = parseInt(req.params.adminId);
+    const { first_name, last_name, mobile_number, email, street_address, city, nic, gender } = req.body
+
+    try {
+        const existingAdmin = await prisma.admin.findUnique({
+            where: {
+                id: adminId,
+                is_active: true
+            }
+        });
+        if (!existingAdmin) {
+            return handleError({
+                res: res,
+                status: 200,
+                message: responseMessages.adminNotFound,
+                error: null,
+                responseCode: 1001
+            })
+        }
+
+        const dataToUpdate = {};
+        if (first_name) dataToUpdate.first_name = first_name;
+        if (last_name) dataToUpdate.last_name = last_name;
+        if (mobile_number) {
+            const existingMobileNumber = await prisma.admin.findFirst({
+                where: {
+                    mobile_number: mobile_number
+                }
+            })
+            if (existingMobileNumber) {
+                return handleError({
+                    res: res,
+                    status: 200,
+                    message: responseMessages.phoneExists,
+                    error: null,
+                    responseCode: 1001
+                })
+            }
+
+            dataToUpdate.mobile_number = mobile_number;
+        }
+
+        if (email) {
+            const existingEmail = await prisma.user.findFirst({
+                where: {
+                    email: email,
+                    id: {
+                        not: existingAdmin.user_id
+                    }
+                }
+            })
+            if (existingEmail) {
+                return handleError({
+                    res: res,
+                    status: 200,
+                    message: responseMessages.EmailExists,
+                    error: null,
+                    responseCode: 1001
+                })
+            }
+
+            const updateEmail = await prisma.user.update({
+                where: {
+                    id: existingAdmin.user_id
+                },
+                data: {
+                    email: email
+                }
+            })
+        }
+
+        if (street_address) dataToUpdate.street_address = street_address;
+        if (city) dataToUpdate.city = city;
+        if (nic) {
+            const existNic = await prisma.admin.findFirst({
+                where: {
+                    nic: nic,
+                    id: {
+                        not: existingAdmin.id
+                    }
+                }
+            });
+
+            if (existNic) {
+                return handleError({
+                    res: res,
+                    status: 200,
+                    message: responseMessages.nicExists,
+                    error: null,
+                    responseCode: 1001
+                })
+            }
+
+            dataToUpdate.nic = nic;
+        }
+
+        if (gender) dataToUpdate.gender = gender;
+
+        const updateAdmin = await prisma.admin.update({
+            where: {
+                id: adminId
+            },
+            data: dataToUpdate
+        });
+
+        handleResponse({
+            res: res,
+            status: 200,
+            message: responseMessages.customerUpdated,
+            data: {
+                admin: updateAdmin
+            },
+            responseCode: 1000
+        })
+
+    } catch (error) {
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.serverError,
+            error: error.message,
+            responseCode: 1001
+        })
+    }
+}
+
 module.exports = {
     addNewUserType,
     fileUpload,
     addNewProduct,
     addCategory,
-    getDetailsToAdminDashboard
+    getDetailsToAdminDashboard,
+    getALLOrders,
+    changeOrderStatus,
+    getAllCustomers,
+    updateAdmin
 }

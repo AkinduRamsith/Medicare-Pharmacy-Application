@@ -13,7 +13,7 @@ const nodemailer = require("nodemailer");
 const prisma = new PrismaClient();
 
 const { root, createToken, refreshToken, sendEmail } = require('../../const');
-const { profile } = require('console');
+
 const { pid } = require('process');
 
 const buyNowPayment = async (req, res) => {

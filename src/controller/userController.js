@@ -15,7 +15,7 @@ const nodemailer = require("nodemailer");
 const prisma = new PrismaClient();
 
 const { root,createToken,refreshToken,sendEmail } = require('../../const');
-const { profile } = require('console');
+
 const rootDir = `${root}/${process.env.ADMIN_IMAGES}`
 
 const fileUpload = async (req, res) => {
@@ -299,7 +299,7 @@ const login = async function (req, res) {
 
         if (user) {
             const auth = await bcrypt.compare(password, user.password);
-            console.log(auth);
+            
             const token = createToken(user.id, user.email);
 
             const refresh = refreshToken(user.id);

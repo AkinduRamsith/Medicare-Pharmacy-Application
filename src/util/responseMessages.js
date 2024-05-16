@@ -59,6 +59,7 @@ const responseMessages = {
     paymentDone:"Payment Done",
     customerUpdated:"Customer Updated",
     prescriptionFetched:"Prescription Fetched",
+    orderUpdated:"order Updated Successfully",
 };
 
 module.exports = responseMessages;

@@ -13,8 +13,8 @@ const nodemailer = require("nodemailer");
 const prisma = new PrismaClient();
 
 const { root, createToken, refreshToken, sendEmail } = require('../../const');
-const { profile } = require('console');
-const { pid } = require('process');
+
+
 const rootDir = `${root}/${process.env.USER_IMAGES}`
 
 const getDashboardDetails = async (req, res) => {

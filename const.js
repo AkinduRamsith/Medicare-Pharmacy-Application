@@ -29,7 +29,7 @@ const refreshToken = (id) => {
 };
 
 const sendEmail = async (to, subject, html) => {
-    console.log("email sent");
+    
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,

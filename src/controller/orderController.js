@@ -13,7 +13,7 @@ const nodemailer = require("nodemailer");
 const prisma = new PrismaClient();
 
 const { root, createToken, refreshToken, sendEmail } = require('../../const');
-const { profile } = require('console');
+
 const { pid } = require('process');
 
 
@@ -127,6 +127,7 @@ const placeOrder = async (req, res) => {
                         }
                     },
                     order_status: "Pending",
+                    date_receive: new Date(new Date().setDate(new Date().getDate() + 7))
 
                 }
             });

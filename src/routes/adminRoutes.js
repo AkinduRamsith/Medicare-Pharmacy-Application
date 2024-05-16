@@ -73,5 +73,9 @@ adminRoutes.post('/add-new-category',adminController.addCategory)
 
 
 adminRoutes.get('/get-details-to-admin-dashboard/:adminId',adminController.getDetailsToAdminDashboard)
+adminRoutes.get('/get-all-orders',adminController.getALLOrders)
+adminRoutes.patch('/change-order-status/:orderId',adminController.changeOrderStatus)
+adminRoutes.get('/get-all-customers',adminController.getAllCustomers)
+adminRoutes.patch('/update-admin/:adminId',adminController.updateAdmin)
 
 module.exports = adminRoutes; 
