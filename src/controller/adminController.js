@@ -122,7 +122,7 @@ const addNewProduct = async (req, res) => {
         });
     }
 
-    const { productName, categoryId, file, quantity, price, description, brand ,rating} = req.body;
+    const { productName, categoryId, file, quantity, price, description, brand, rating } = req.body;
 
     try {
         const existingProduct = await prisma.product.findFirst({
@@ -146,7 +146,7 @@ const addNewProduct = async (req, res) => {
                     image: file,
                     stock: existingProduct.stock + quantity,
                     description: description,
-                    rating:rating
+                    rating: rating
                 }
             })
         } else {
@@ -163,7 +163,7 @@ const addNewProduct = async (req, res) => {
                     stock: quantity,
                     price: price,
                     description: description,
-                    rating:rating
+                    rating: rating
                 }
 
             })
@@ -263,10 +263,175 @@ const addCategory = async (req, res) => {
 }
 
 
+const getDetailsToAdminDashboard = async (req, res) => {
+    const adminId = parseInt(req.params.adminId);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+
+    // Dates for last month
+    const startOfLastMonth = new Date(startOfDay.getFullYear(), startOfDay.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(startOfDay.getFullYear(), startOfDay.getMonth(), 0);
+    endOfLastMonth.setHours(23, 59, 59, 999);
+
+
+    try {
+        const existingAdmin = await prisma.admin.findFirst({
+            where: {
+                id: adminId,
+                is_active: true
+            }
+        });
+
+        if (!existingAdmin) {
+            return handleError({
+                res: res,
+                status: 200,
+                message: responseMessages.adminNotFound,
+                error: null,
+                responseCode: 1001
+            })
+        }
+
+        const adminDetails = await prisma.admin.findFirst({
+            where: {
+                id: adminId
+            },
+            select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                mobile_number: true,
+                street_address: true,
+                city: true,
+                gender: true,
+                nic: true,
+                image: true,
+                user: {
+                    select: {
+                        email: true
+                    }
+                }
+            }
+        })
+
+        const allCustomers = await prisma.customer.count({
+            where: {
+                is_active: true
+            }
+        })
+
+        const allCategories = await prisma.category.count({
+            where: {
+                is_active: true
+            }
+        })
+
+        const todayOrdersCount = await prisma.order.count({
+            where: {
+                created_at: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                },
+                is_active: true,
+            },
+        });
+
+
+        const pendingOrdersCount = await prisma.order.count({
+            where: {
+                order_status: 'Pending',
+                is_active: true,
+            },
+        });
+
+
+
+        const todayIncome = await prisma.payment.aggregate({
+            _sum: {
+                amount: true,
+            },
+            where: {
+                created_at: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                },
+                is_active: true,
+            },
+        });
+
+        const lastMonthIncome = await prisma.payment.aggregate({
+            _sum: {
+                amount: true,
+            },
+            where: {
+                created_at: {
+                    gte: startOfLastMonth,
+                    lte: endOfLastMonth,
+                },
+                is_active: true,
+            },
+        });
+
+        const receivedIncome = await prisma.payment.aggregate({
+            _sum: {
+                amount: true,
+            },
+            where: {
+                status: 'Success',
+                is_active: true,
+            },
+        });
+
+        const pendingIncome = await prisma.payment.aggregate({
+            _sum: {
+                amount: true,
+            },
+            where: {
+                status: {
+                    not: 'Success',
+                },
+                is_active: true,
+            },
+        });
+
+
+        handleResponse({
+            res: res,
+            status: 200,
+            message: responseMessages.adminDetails,
+            data: {
+                adminDetails: adminDetails,
+                allCustomers: allCustomers,
+                allCategories: allCategories,
+                todayOrdersCount: todayOrdersCount,
+                pendingOrdersCount: pendingOrdersCount,
+                todayIncome: parseInt(todayIncome._sum.amount) || 0,
+                lastMonthIncome: parseInt(lastMonthIncome._sum.amount) || 0,
+                receivedIncome: parseInt(receivedIncome._sum.amount) || 0,
+                pendingIncome: parseInt(pendingIncome._sum.amount) || 0,
+            },
+            responseCode: 1000
+        })
+
+    } catch (error) {
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.serverError,
+            error: error.stack,
+            responseCode: 1001
+        })
+    }
+}
+
 
 module.exports = {
     addNewUserType,
     fileUpload,
     addNewProduct,
-    addCategory
+    addCategory,
+    getDetailsToAdminDashboard
 }

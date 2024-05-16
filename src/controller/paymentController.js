@@ -91,7 +91,7 @@ const buyNowPayment = async (req, res) => {
                         id: payment.id
                     }
                 },
-                date_recieve: dateReceive
+                date_receive: dateReceive
             }
         })
 

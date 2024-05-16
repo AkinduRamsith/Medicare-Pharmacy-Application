@@ -71,4 +71,7 @@ adminRoutes.post('/save-product-image', (req, res, next) => {
 adminRoutes.post('/add-new-product',adminController.addNewProduct)
 adminRoutes.post('/add-new-category',adminController.addCategory)
 
+
+adminRoutes.get('/get-details-to-admin-dashboard/:adminId',adminController.getDetailsToAdminDashboard)
+
 module.exports = adminRoutes; 
