@@ -326,6 +326,7 @@ const showCartItems = async (req, res) => {
             tax += itemTax;
 
             items.push({
+                itemID:cart.id,
                 item_name: cart.product.product_name,
                 item_image: cart.product.image,
                 item_price: cart.product.price,
@@ -491,10 +492,60 @@ const updateCustomer = async (req,res)=>{
     }
 }
 
+const removeItemFromCart = async (req,res)=>{
+    const cartId =parseInt(req.params.cartId);
+    try{
+        const existingCart = await prisma.cart.findUnique({
+            where:{
+                id:cartId,
+                is_active:true
+            }
+        });
+
+        if(!existingCart){
+            return handleError({
+                res: res,
+                status: 200,
+                message: responseMessages.cartNotExist,
+                error: null,
+                responseCode: 1001
+            })
+        }
+
+        const removeFromCart = await prisma.cart.update({
+            where:{
+                id:cartId
+            },
+            data:{
+                is_active:false
+            }
+        })
+
+        handleResponse({
+            res: res,
+            status: 200,
+            message: responseMessages.itemRemoved,
+            data: {
+                cartItem: removeFromCart
+            },
+            responseCode: 1000
+        })
+    }catch(error){
+        return handleError({
+            res: res,
+            status: 200,
+            message: responseMessages.serverError,
+            error: error.message,
+            responseCode: 1001
+        })
+    }
+}
+
 module.exports = {
     getDashboardDetails,
     getProductsOfCategory,
     addToCart,
     showCartItems,
-    updateCustomer
+    updateCustomer,
+    removeItemFromCart
 }

@@ -12,5 +12,6 @@ customerRoutes.get('/get-product-of-category/:categoryId',customerController.get
 customerRoutes.post('/add-to-cart',customerController.addToCart)
 customerRoutes.get('/get-cart-items/:customerId',customerController.showCartItems)
 customerRoutes.patch('/update-customer/:customerId',customerController.updateCustomer)
+customerRoutes.delete('/remove-from-cart/:cartId',customerController.removeItemFromCart)
 
 module.exports = customerRoutes;

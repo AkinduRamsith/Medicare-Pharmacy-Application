@@ -60,6 +60,7 @@ const responseMessages = {
     customerUpdated:"Customer Updated",
     prescriptionFetched:"Prescription Fetched",
     orderUpdated:"order Updated Successfully",
+    itemRemoved:"Cart Item Removed",
 };
 
 module.exports = responseMessages;
